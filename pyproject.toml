@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pt-invoice-adder"
+version = "1.0.0"
+description = "Extract Bosch PT GmbH invoice fields from .msg/.pdf and append to PT INV LIST.xlsx"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "openpyxl>=3.1",
+  "pypdf>=4.0",
+  "pdfminer.six>=20221105",
+  "extract-msg>=0.48",
+]
+
+[project.optional-dependencies]
+gui = ["customtkinter>=5.2", "tkinterdnd2>=0.3"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+pt-invoice-adder = "pt_invoice_adder.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pt_invoice_adder = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.venv/
+venv/
+*.xlsx
+!~/keep
+config.json
+.pt_invoice_adder.json
+.DS_Store

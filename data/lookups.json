@@ -1,0 +1,273 @@
+{
+  "incoterms": [
+    "FCA",
+    "CPT",
+    "CIP",
+    "FOB",
+    "CFR",
+    "CIF",
+    "DAP",
+    "DDP",
+    "DDU"
+  ],
+  "coo": [
+    {
+      "full": "China",
+      "code": "CN"
+    },
+    {
+      "full": "SHANGHAI",
+      "code": "CN"
+    },
+    {
+      "full": "SHEKOU",
+      "code": "CN"
+    },
+    {
+      "full": "NINGBO",
+      "code": "CN"
+    },
+    {
+      "full": "HONG KONG",
+      "code": "CN"
+    },
+    {
+      "full": "XINGANG",
+      "code": "CN"
+    },
+    {
+      "full": "DONGGUAN",
+      "code": "CN"
+    },
+    {
+      "full": "SHENZHEN",
+      "code": "CN"
+    },
+    {
+      "full": "HANGZHOU",
+      "code": "CN"
+    },
+    {
+      "full": "WENZHOU",
+      "code": "CN"
+    },
+    {
+      "full": "RIZHAO",
+      "code": "CN"
+    },
+    {
+      "full": "DALIAN",
+      "code": "CN"
+    },
+    {
+      "full": "ZHEJIANG",
+      "code": "CN"
+    },
+    {
+      "full": "CHENGDU",
+      "code": "CN"
+    },
+    {
+      "full": "HONG",
+      "code": "CN"
+    },
+    {
+      "full": "LIAONING",
+      "code": "CN"
+    },
+    {
+      "full": "CHANGZHOU",
+      "code": "CN"
+    },
+    {
+      "full": "XINGYANG",
+      "code": "CN"
+    },
+    {
+      "full": "KUNSHAN",
+      "code": "CN"
+    },
+    {
+      "full": "SUZHOU",
+      "code": "CN"
+    },
+    {
+      "full": "NANQIAO",
+      "code": "CN"
+    },
+    {
+      "full": "NANJING",
+      "code": "CN"
+    },
+    {
+      "full": "WUYI",
+      "code": "CN"
+    },
+    {
+      "full": "SICHUAN",
+      "code": "CN"
+    },
+    {
+      "full": "Germany",
+      "code": "DE"
+    },
+    {
+      "full": "BREMERHAVEN",
+      "code": "DE"
+    },
+    {
+      "full": "MUNICH",
+      "code": "DE"
+    },
+    {
+      "full": "MANNHEIM",
+      "code": "DE"
+    },
+    {
+      "full": "HANNOVER",
+      "code": "DE"
+    },
+    {
+      "full": "WORMS",
+      "code": "DE"
+    },
+    {
+      "full": "STUTTGART",
+      "code": "DE"
+    },
+    {
+      "full": "HAMBURG",
+      "code": "DE"
+    },
+    {
+      "full": "KALEFELD",
+      "code": "DE"
+    },
+    {
+      "full": "LEINFELDEN",
+      "code": "DE"
+    },
+    {
+      "full": "GERLINGEN",
+      "code": "DE"
+    },
+    {
+      "full": "Hungary",
+      "code": "HU"
+    },
+    {
+      "full": "MISKOLC",
+      "code": "HU"
+    },
+    {
+      "full": "Indonesia",
+      "code": "ID"
+    },
+    {
+      "full": "JAKARTA",
+      "code": "ID"
+    },
+    {
+      "full": "KARAWANG",
+      "code": "ID"
+    },
+    {
+      "full": "Korea",
+      "code": "KR"
+    },
+    {
+      "full": "HAIPHONG",
+      "code": "KR"
+    },
+    {
+      "full": "NAMBU-DAERO",
+      "code": "KR"
+    },
+    {
+      "full": "Malaysia",
+      "code": "MY"
+    },
+    {
+      "full": "PORT KLANG",
+      "code": "MY"
+    },
+    {
+      "full": "PENANG",
+      "code": "MY"
+    },
+    {
+      "full": "KUALA LUMPUR",
+      "code": "MY"
+    },
+    {
+      "full": "PETALING JAYA",
+      "code": "MY"
+    },
+    {
+      "full": "Netherlands",
+      "code": "NL"
+    },
+    {
+      "full": "ROTTERDAM",
+      "code": "NL"
+    },
+    {
+      "full": "AMSTERDAM",
+      "code": "NL"
+    },
+    {
+      "full": "GERLINGEN",
+      "code": "NL"
+    },
+    {
+      "full": "Taiwan",
+      "code": "TW"
+    },
+    {
+      "full": "TAICHUNG",
+      "code": "TW"
+    },
+    {
+      "full": "TAIPEI",
+      "code": "TW"
+    },
+    {
+      "full": "United States",
+      "code": "US"
+    },
+    {
+      "full": "ATLANTA",
+      "code": "US"
+    },
+    {
+      "full": "MEMPHIS",
+      "code": "US"
+    },
+    {
+      "full": "LOS ANGELES",
+      "code": "US"
+    },
+    {
+      "full": "WEST MEMPHIS",
+      "code": "US"
+    },
+    {
+      "full": "CALEXICO",
+      "code": "US"
+    }
+  ],
+  "ship_type": [
+    {
+      "type": "Express",
+      "weight_kg": 0.0
+    },
+    {
+      "type": "Air",
+      "weight_kg": 20.0
+    },
+    {
+      "type": "Sea",
+      "weight_kg": 100.0
+    }
+  ]
+}

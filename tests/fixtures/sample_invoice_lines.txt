@@ -1,0 +1,20 @@
+Departure country Malaysia
+Invoice Date 08.07.2026
+Account No. 227026
+Invoice No. 50656407
+Dispatch type Sea
+Filler line before pack
+total ______________ ______________
+    340.394 kg     437.530 kg
+total :   5
+Invoice No. 50656407
+Some footer between invoices
+Departure country China
+Invoice Date 09.07.2026
+Invoice No. 50659999
+Dispatch type
+FCA CHENGDU
+total ______________ ______________
+  1,239.840 kg   1,319.840 kg
+total :   5
+Invoice No. 50659999
