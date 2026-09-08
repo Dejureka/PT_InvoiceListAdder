@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+from copy import copy
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Sequence
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.cell.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
 
@@ -51,13 +56,61 @@ def existing_inv_set(ws: Worksheet) -> set[str]:
     return found
 
 
+def _last_data_row(ws: Worksheet) -> int | None:
+    """Last row that has a GMBH INV (col D) or any A–F value; skip header row 1."""
+    for r in range(ws.max_row or 1, 1, -1):
+        if any(ws.cell(r, c).value is not None for c in range(1, 7)):
+            return r
+    return None
+
+
+def _copy_style(src: Cell, dst: Cell) -> None:
+    """Copy cell formatting like Excel Format Painter (style only, not value)."""
+    if src.has_style:
+        dst.font = copy(src.font)
+        dst.border = copy(src.border)
+        dst.fill = copy(src.fill)
+        dst.number_format = src.number_format
+        dst.protection = copy(src.protection)
+        dst.alignment = copy(src.alignment)
+
+
+def _paint_row_from_template(ws: Worksheet, template_row: int, target_row: int) -> None:
+    for c in range(1, 7):
+        _copy_style(ws.cell(template_row, c), ws.cell(target_row, c))
+    try:
+        dim = ws.row_dimensions[template_row]
+        if dim.height is not None:
+            ws.row_dimensions[target_row].height = dim.height
+    except Exception:
+        pass
+
+
+def open_workbook(path: str | Path) -> None:
+    """Open the workbook with the OS default app (Excel, etc.)."""
+    path = Path(path).resolve()
+    if not path.is_file():
+        raise FileNotFoundError(str(path))
+    if sys.platform.startswith("win"):
+        os.startfile(str(path))  # type: ignore[attr-defined]
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", str(path)])
+    else:
+        subprocess.Popen(["xdg-open", str(path)])
+
+
 def append_rows(
     list_path: str | Path,
     rows: Sequence[dict[str, Any]],
     *,
     dry_run: bool = False,
+    open_after: bool = False,
 ) -> tuple[int, int]:
-    """Append A–F only; skip duplicate GMBH INV in col D. Return (added, skipped)."""
+    """Append A–F only; skip duplicate GMBH INV in col D. Return (added, skipped).
+
+    New rows copy formatting from the previous data row (format painter).
+    If open_after and at least one row was written, open the file for review.
+    """
     list_path = Path(list_path)
     if list_path.exists():
         wb = load_workbook(list_path)
@@ -75,11 +128,12 @@ def append_rows(
     added = 0
     skipped = 0
     next_row = (ws.max_row or 1) + 1
-    # if sheet only has empty first row without headers detection — still fine
     if ws.max_row == 1 and ws.cell(1, 1).value is None:
         for c, h in enumerate(HEADERS, 1):
             ws.cell(1, c, h)
         next_row = 2
+
+    template_row = _last_data_row(ws)
 
     for row in rows:
         inv = _norm_inv(row.get("invoice_no"))
@@ -103,16 +157,30 @@ def append_rows(
         except ValueError:
             pass
 
+        if template_row is not None:
+            _paint_row_from_template(ws, template_row, next_row)
+
         ws.cell(next_row, 1, cell_date)
         ws.cell(next_row, 2, row.get("country"))
         ws.cell(next_row, 3, row.get("shipment_type"))
         ws.cell(next_row, 4, inv_cell)
         ws.cell(next_row, 5, row.get("total_pkg"))
         ws.cell(next_row, 6, row.get("gross_weight"))
+
+        # Keep number formats from template if painted; otherwise sensible defaults
+        if template_row is None:
+            ws.cell(next_row, 1).number_format = "YYYY-MM-DD"
+
         existing.add(inv)
+        template_row = next_row  # subsequent new rows match the one just written
         next_row += 1
         added += 1
 
     if not dry_run and added:
         wb.save(list_path)
+        if open_after:
+            try:
+                open_workbook(list_path)
+            except Exception:
+                pass
     return added, skipped

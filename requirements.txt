@@ -3,5 +3,3 @@ pypdf>=4.0
 pdfminer.six>=20221105
 extract-msg>=0.48
 customtkinter>=5.2
-tkinterdnd2>=0.3
-pytest>=7.0

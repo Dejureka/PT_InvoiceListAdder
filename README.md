@@ -48,6 +48,8 @@ python -m pt_invoice_adder --files "invoices" --list "PT INV LIST.xlsx" --dry-ru
 
 不寫入 G–J。重複發票號略過。
 
+寫入時會複製上一列的儲存格格式（類似 Format Painter）；成功新增後會自動用系統預設程式開啟清單檔供檢視。
+
 ## 授權
 
 私人專案用途依倉庫設定。

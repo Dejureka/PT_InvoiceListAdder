@@ -13,10 +13,11 @@ dependencies = [
   "pypdf>=4.0",
   "pdfminer.six>=20221105",
   "extract-msg>=0.48",
+  "customtkinter>=5.2",
 ]
 
 [project.optional-dependencies]
-gui = ["customtkinter>=5.2", "tkinterdnd2>=0.3"]
+gui = ["tkinterdnd2>=0.3", "windnd>=1.0.7; platform_system=='Windows'"]
 dev = ["pytest>=7.0"]
 
 [project.scripts]
