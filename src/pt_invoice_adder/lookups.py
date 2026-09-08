@@ -7,11 +7,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from pt_invoice_adder.paths import app_dir, resource_dir
+
 
 def _candidate_paths() -> list[Path]:
     here = Path(__file__).resolve()
     return [
-        here.parents[2] / "data" / "lookups.json",  # project root (editable / src layout)
+        app_dir() / "data" / "lookups.json",  # portable folder next to exe
+        app_dir() / "lookups.json",
+        resource_dir() / "data" / "lookups.json",  # bundled
+        here.parents[2] / "data" / "lookups.json",
         here.parents[1] / "data" / "lookups.json",
         Path.cwd() / "data" / "lookups.json",
         Path.cwd() / "lookups.json",
@@ -22,7 +27,7 @@ def _candidate_paths() -> list[Path]:
 class Lookups:
     incoterms: list[str] = field(default_factory=list)
     coo_map: dict[str, str] = field(default_factory=dict)
-    ship_types: list[tuple[str, float]] = field(default_factory=list)  # (type, weight_kg)
+    ship_types: list[tuple[str, float]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Lookups":
@@ -53,7 +58,6 @@ class Lookups:
         return self.coo_map.get(city, "please check invoice directly")
 
     def ship_by_weight(self, gw: float) -> str:
-        """XLOOKUP-style: largest weight_kg ≤ gw."""
         best_w: float | None = None
         best_t = ""
         for t, w in self.ship_types:

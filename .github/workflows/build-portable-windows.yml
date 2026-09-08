@@ -1,0 +1,84 @@
+name: Build portable Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'data/**'
+      - 'run_gui.py'
+      - 'PT_InvoiceListAdder.spec'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/build-portable-windows.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[gui]"
+          pip install pyinstaller
+
+      - name: Build onedir
+        run: |
+          pyinstaller --noconfirm PT_InvoiceListAdder.spec
+
+      - name: Stage portable folder
+        shell: pwsh
+        run: |
+          $out = "portable/PT_InvoiceListAdder"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Copy-Item -Recurse -Force "dist/PT_InvoiceListAdder/*" $out
+          New-Item -ItemType Directory -Force -Path "$out/data" | Out-Null
+          Copy-Item -Force "data/lookups.json" "$out/data/lookups.json"
+          @"
+          PT Invoice List Adder（免安裝可攜版）
+          =====================================
+          使用方式：
+          1. 將整個「PT_InvoiceListAdder」資料夾複製到電腦或隨身碟（不要只拷 exe）。
+          2. 雙擊 PT_InvoiceListAdder.exe
+          3. 選擇或拖入 .msg / .pdf，並指定 PT INV LIST.xlsx 路徑後執行。
+
+          注意：
+          - 這不是安裝程式，不解壓到 Program Files 也沒關係。
+          - 可編輯同資料夾內 data\lookups.json（國家代碼對照等）。
+          - 公司防毒若阻擋未簽章 exe，請走內部白名單流程。
+          "@ | Set-Content -Encoding UTF8 "$out/使用說明.txt"
+
+      - name: Zip portable folder
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "portable/PT_InvoiceListAdder" -DestinationPath "PT_InvoiceListAdder_Portable_Win64.zip" -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PT_InvoiceListAdder_Portable_Win64
+          path: PT_InvoiceListAdder_Portable_Win64.zip
+
+      - name: Create / update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: portable-latest
+          name: Portable Windows build
+          body: |
+            免安裝可攜包（Windows 64-bit）。
+            下載 ZIP → 解壓 → 整個資料夾拷走 → 雙擊 `PT_InvoiceListAdder.exe`。
+            無需安裝 Python，也不是 Setup 安裝程式。
+          files: PT_InvoiceListAdder_Portable_Win64.zip
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

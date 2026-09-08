@@ -15,7 +15,10 @@ HOME_CONFIG = ".pt_invoice_adder.json"
 
 
 def _config_paths() -> list[Path]:
+    from pt_invoice_adder.paths import app_dir
+
     return [
+        app_dir() / CONFIG_NAME,
         Path.cwd() / CONFIG_NAME,
         Path.home() / HOME_CONFIG,
     ]
@@ -32,12 +35,14 @@ def load_config() -> dict[str, Any]:
 
 
 def save_config(cfg: dict[str, Any]) -> None:
-    primary = Path.cwd() / CONFIG_NAME
-    try:
-        primary.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
-        return
-    except OSError:
-        pass
+    from pt_invoice_adder.paths import app_dir
+
+    for primary in (app_dir() / CONFIG_NAME, Path.cwd() / CONFIG_NAME):
+        try:
+            primary.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+            return
+        except OSError:
+            continue
     home = Path.home() / HOME_CONFIG
     home.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
 
