@@ -76,3 +76,23 @@ def test_coo_unknown(lookups: Lookups):
     assert rows[0]["shipment_type"] == "AIR"
     assert rows[0]["total_pkg"] == 1
     assert rows[0]["gross_weight"] == pytest.approx(2.0)
+
+
+def test_map_coo_ignores_case():
+    from pt_invoice_adder.lookups import load_lookups
+
+    lk = load_lookups()
+    assert lk.map_coo("Penang") == "MY"
+    assert lk.map_coo("PENANG") == "MY"
+    assert lk.map_coo("Penang Malaysia") == "MY"
+    assert lk.map_coo("Shanghai") == lk.map_coo("SHANGHAI")
+    assert lk.map_coo("Nowhere") == "please check invoice directly"
+
+
+def test_fca_penang_line_gives_my():
+    from pt_invoice_adder.extract import extract_from_lines
+    from pt_invoice_adder.lookups import load_lookups
+
+    lines = ["Invoice Date 01.10.2026", "FCA Penang", "Invoice No. 123456"]
+    rows = extract_from_lines(lines, load_lookups())
+    assert rows[0]["country"] == "MY"

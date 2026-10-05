@@ -36,7 +36,7 @@ class Lookups:
             full = str(row.get("full", "")).strip()
             code = str(row.get("code", "")).strip()
             if full:
-                coo_map[full] = code
+                coo_map[full.upper()] = code
         ship: list[tuple[str, float]] = []
         for row in data.get("ship_type") or []:
             t = str(row.get("type", "")).strip()
@@ -53,9 +53,22 @@ class Lookups:
         )
 
     def map_coo(self, city: str) -> str:
-        if not city:
-            return "please check invoice directly"
-        return self.coo_map.get(city, "please check invoice directly")
+        """Map a city/country name to its code, ignoring case and extra spaces.
+
+        Invoices print names in mixed case (e.g. "Penang") while lookups.json
+        may hold "PENANG", so compare upper-cased. For two-word values such as
+        "Penang Malaysia", fall back to each word on its own.
+        """
+        miss = "please check invoice directly"
+        key = " ".join((city or "").split()).upper()
+        if not key:
+            return miss
+        if key in self.coo_map:
+            return self.coo_map[key]
+        for word in key.split():
+            if word in self.coo_map:
+                return self.coo_map[word]
+        return miss
 
     def ship_by_weight(self, gw: float) -> str:
         best_w: float | None = None
