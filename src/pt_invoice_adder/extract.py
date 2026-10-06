@@ -167,8 +167,22 @@ def text_from_pdf(path: str | Path) -> str:
         raise RuntimeError(f"Failed to extract text from PDF: {path}") from exc
 
 
+_WIN_BAD_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
+
+
+def safe_filename(name: str, default: str = "attachment.pdf") -> str:
+    """Keep the original file name; only replace characters Windows forbids."""
+    name = _WIN_BAD_CHARS.sub("_", str(name)).strip().rstrip(".")
+    return name or default
+
+
 def pdfs_from_msg(msg_path: str | Path) -> list[Path]:
-    """Extract .pdf attachments from a .msg into a temp dir; return paths."""
+    """Extract .pdf attachments from a .msg into temp dirs; return paths.
+
+    Each attachment is written to its own temp sub-folder under its original
+    file name, so ``path.name`` is the attachment's real name (used for
+    "save as" copies and the preview source column).
+    """
     import extract_msg
 
     msg_path = Path(msg_path)
@@ -181,13 +195,10 @@ def pdfs_from_msg(msg_path: str | Path) -> list[Path]:
             name = str(name)
             if not name.lower().endswith(".pdf"):
                 continue
-            # save attachment
             data = att.data
-            safe = re.sub(r"[^\w.\-]+", "_", name)
-            dest = out_dir / safe
-            # avoid overwrite collisions
-            if dest.exists():
-                dest = out_dir / f"{dest.stem}_{len(pdfs)}{dest.suffix}"
+            sub = out_dir / str(len(pdfs))
+            sub.mkdir()
+            dest = sub / safe_filename(name)
             dest.write_bytes(data)
             pdfs.append(dest)
     finally:

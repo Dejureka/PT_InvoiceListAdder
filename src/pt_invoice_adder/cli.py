@@ -41,6 +41,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional path to lookups.json",
     )
     p.add_argument(
+        "--save-pdf-dir",
+        default=None,
+        metavar="FOLDER",
+        help="Also copy every processed PDF (direct .pdf or .msg attachment) into this folder",
+    )
+    p.add_argument(
         "--gui",
         action="store_true",
         help="Launch GUI",
@@ -86,6 +92,20 @@ def main(argv: list[str] | None = None) -> int:
     added, skipped = append_rows(args.list_path, rows, dry_run=args.dry_run)
     mode = "dry-run" if args.dry_run else "write"
     print(f"[{mode}] added={added} skipped={skipped} pdfs={len(pdfs)} rows={len(rows)}")
+
+    if args.save_pdf_dir:
+        if args.dry_run:
+            print(f"[dry-run] PDFs not saved to {args.save_pdf_dir}")
+        else:
+            from pt_invoice_adder.save_pdf import save_pdfs
+
+            res = save_pdfs(pdfs, args.save_pdf_dir)
+            print(
+                f"[save] saved={len(res.saved)} skipped_identical={len(res.skipped)} "
+                f"errors={len(res.errors)} dir={args.save_pdf_dir}"
+            )
+            for src, msg in res.errors:
+                print(f"[save error] {src.name}: {msg}", file=sys.stderr)
     return 0
 
 

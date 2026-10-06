@@ -12,6 +12,7 @@ hiddenimports = [
     'openpyxl',
     'customtkinter',
     'tkinterdnd2',
+    'pt_invoice_adder.save_pdf',
 ]
 
 tmp_ret = collect_all('customtkinter')

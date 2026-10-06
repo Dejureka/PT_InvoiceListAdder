@@ -122,6 +122,16 @@ def run_gui() -> None:
             self.list_entry.pack(side="left", fill="x", expand=True, padx=4)
             ttk.Button(frm_list, text="瀏覽…", command=self._browse_list).pack(side="left")
 
+            frm_save = ttk.Frame(self.root)
+            frm_save.pack(fill="x", **pad)
+            ttk.Label(frm_save, text="另存 PDF 到：").pack(side="left")
+            self.save_dir_var = tk.StringVar(value=self.cfg.get("save_pdf_dir") or "")
+            self.save_dir_entry = ttk.Entry(frm_save, textvariable=self.save_dir_var)
+            self.save_dir_entry.pack(side="left", fill="x", expand=True, padx=4)
+            ttk.Button(
+                frm_save, text="選擇資料夾", command=self._browse_save_dir
+            ).pack(side="left")
+
             frm_drop = ttk.LabelFrame(
                 self.root, text="拖放區域（PDF / MSG / 資料夾）— DnD 為選用依賴"
             )
@@ -256,8 +266,18 @@ def run_gui() -> None:
                 self.list_var.set(path)
                 self._persist()
 
+        def _browse_save_dir(self) -> None:
+            folder = filedialog.askdirectory(
+                title="選擇另存 PDF 的資料夾",
+                initialdir=self.save_dir_var.get().strip() or None,
+            )
+            if folder:
+                self.save_dir_var.set(folder)
+                self._persist()
+
         def _persist(self) -> None:
             self.cfg["list_path"] = self.list_var.get().strip()
+            self.cfg["save_pdf_dir"] = self.save_dir_var.get().strip()
             self.cfg["last_files"] = list(self.paths)
             try:
                 save_config(self.cfg)
@@ -267,6 +287,7 @@ def run_gui() -> None:
         def _process(self, dry_run: bool = False) -> None:
             self._persist()
             list_path = self.list_var.get().strip()
+            save_dir = self.save_dir_var.get().strip()
             if not self.paths:
                 messagebox.showwarning("提示", "請先選擇 PDF / MSG 檔案或資料夾")
                 return
@@ -287,9 +308,47 @@ def run_gui() -> None:
                     pdfs = collect_pdfs(self.paths)
                     rows = rows_from_pdfs(pdfs, lookups)
 
+                    # 另存 PDF：失敗只記錄，不影響寫入清單
+                    save_res = None
+                    save_fail = ""
+                    if save_dir and not dry_run:
+                        try:
+                            from pt_invoice_adder.save_pdf import save_pdfs
+
+                            save_res = save_pdfs(pdfs, save_dir)
+                        except Exception as exc:
+                            save_fail = str(exc)
+
+                    def save_summary() -> str:
+                        """Log save details; return a short line for the result box."""
+                        if not save_dir:
+                            return ""
+                        if dry_run:
+                            self._log("預覽模式：不另存 PDF")
+                            return ""
+                        if save_fail:
+                            self._log(f"另存 PDF 失敗：{save_fail}")
+                            return "\n另存 PDF 失敗，詳見日誌"
+                        if save_res is None:
+                            return ""
+                        for src, err in save_res.errors:
+                            self._log(f"另存失敗：{src.name}：{err}")
+                        self._log(
+                            f"另存 PDF：新存 {len(save_res.saved)} 個，"
+                            f"已存在略過 {len(save_res.skipped)} 個，"
+                            f"失敗 {len(save_res.errors)} 個 → {save_dir}"
+                        )
+                        line = f"\n另存 PDF {len(save_res.saved)} 個"
+                        if save_res.skipped:
+                            line += f"（已存在略過 {len(save_res.skipped)} 個）"
+                        if save_res.errors:
+                            line += f"\n另存失敗 {len(save_res.errors)} 個，詳見日誌"
+                        return line
+
                     def ui_update() -> None:
                         for r in rows:
                             self.preview.insert("end", _fmt_row(r) + "\n")
+                        save_line = save_summary()
                         if dry_run or not list_path:
                             added, skipped = (len(rows), 0)
                             if list_path:
@@ -312,7 +371,8 @@ def run_gui() -> None:
                             messagebox.showinfo(
                                 "完成",
                                 f"新增 {added} 筆，略過重複 {skipped} 筆"
-                                + ("\n已開啟 PT INV LIST 供檢視" if added else ""),
+                                + ("\n已開啟 PT INV LIST 供檢視" if added else "")
+                                + save_line,
                             )
 
                     self.root.after(0, ui_update)

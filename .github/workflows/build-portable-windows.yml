@@ -51,6 +51,8 @@ jobs:
           1. 將整個「PT_InvoiceListAdder」資料夾複製到電腦或隨身碟（不要只拷 exe）。
           2. 雙擊 PT_InvoiceListAdder.exe
           3. 選擇或拖入 .msg / .pdf，並指定 PT INV LIST.xlsx 路徑後執行。
+          4. （選用）在「另存 PDF 到」選資料夾，處理時會把 .msg 裡的 PDF 附件或匯入的 PDF 另存一份過去；
+             同名同內容會略過，同名不同內容會加 (1)、(2)。空白就不另存，「僅預覽」也不會存。
 
           注意：
           - 這不是安裝程式，不解壓到 Program Files 也沒關係。
